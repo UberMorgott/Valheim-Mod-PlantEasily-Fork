@@ -60,7 +60,7 @@ static class PlacementPatches
             }
         }
 
-        static void Postfix(Player __instance)
+        static void Postfix(Player __instance, bool flashGuardStone)
         {
             if (!config.ModActive || !PlacementState.PlacementGhost || PlacementController.IsPlanting)
                 return;
@@ -70,7 +70,7 @@ static class PlacementPatches
                 return;
 
             PlacementState.Update(__instance.transform.position);
-            GhostGrid.Update(__instance);
+            GhostGrid.Update(__instance, press: flashGuardStone);
         }
     }
 

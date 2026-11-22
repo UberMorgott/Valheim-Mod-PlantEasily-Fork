@@ -173,7 +173,11 @@ internal static class GhostGrid
         ExtraGhosts.Clear();
     }
 
-    internal static void Update(Player player)
+    /// <param name="press">The re-aim vanilla TryPlacePiece runs before placing (UpdatePlacementGhost(flashGuardStone: true),
+    /// Player.cs:3043): every ghost is re-evaluated now. Cached ghosts are only refreshed when the grid version moves, but a
+    /// rebuild (InitializeGhosts: extras moved onto the new root, marked Healthy) or an inventory change never moves it, so with
+    /// a still aim (free build camera) a press planted the extras at stale spots and skipped their LackResources check.</param>
+    internal static void Update(Player player, bool press = false)
     {
         UpdateVisibility();
 
@@ -187,12 +191,14 @@ internal static class GhostGrid
         int baseCost = piece.m_resources[0].m_amount;
 
         UpdateGridVersion();
+        if (press)
+            _gridVersion++;
 
         // Always update root ghost immediately, even though this results in the occasional double update per frame
         UpdateGhost(player, piece, 0, 0, 0);
 
         int totalGhosts = 1 + MaxActiveGhosts; // Root + extras
-        int updatesThisFrame = Mathf.Min(config.GhostUpdateBatchSize, totalGhosts);
+        int updatesThisFrame = GhostRefresh.UpdatesThisFrame(press, config.GhostUpdateBatchSize, totalGhosts);
 
         for (int i = 0; i < updatesThisFrame; i++)
         {

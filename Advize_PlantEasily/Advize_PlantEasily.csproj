@@ -51,6 +51,10 @@
     </When>
   </Choose>
   <ItemGroup>
+    <!-- net48 reference assemblies without a Developer Pack install (standalone dotnet build / qgate). -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>$(GamePath)\BepInEx\core\0Harmony.dll</HintPath>
       <Private>False</Private>
@@ -123,6 +127,7 @@
     <Compile Include="Core\SnapSystem\GhostStatus.cs" />
     <Compile Include="Core\SnapSystem\PlacementState.cs" />
     <Compile Include="Core\SnapSystem\GhostGrid.cs" />
+    <Compile Include="Core\SnapSystem\GhostRefresh.cs" />
     <Compile Include="Core\SnapSystem\SnapPoint.cs" />
     <Compile Include="Core\SnapSystem\SnapPointGenerator.cs" />
     <Compile Include="Core\SnapSystem\SnapSystem.cs" />

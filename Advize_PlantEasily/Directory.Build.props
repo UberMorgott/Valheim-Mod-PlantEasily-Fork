@@ -1,0 +1,8 @@
+<Project>
+  <!-- Standalone build (qgate) the way the harness builds this fork (tools\lib\ModTable.ps1, PlantEasily): publicized game
+       DLLs resolved from obj\publicized via ReferencePath. shortcut: obj\publicized is written by that harness build
+       (assembly-publicizer), so a fresh clone builds after one harness build; move to BepInEx.AssemblyPublicizer if it hurts. -->
+  <PropertyGroup>
+    <ReferencePath Condition="'$(ReferencePath)' == ''">$(MSBuildThisFileDirectory)obj\publicized</ReferencePath>
+  </PropertyGroup>
+</Project>
