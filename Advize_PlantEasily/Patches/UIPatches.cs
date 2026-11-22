@@ -16,9 +16,9 @@ static class UIPatches
         TMP_Text component = elementRoot.transform.Find("res_amount").GetComponent<TMP_Text>();
         int totalGhosts = Mathf.Min(config.Rows * config.Columns, config.MaxConcurrentPlacements);
 
-        string formattedCost = config.CostDisplayStyle == 0 ? config.CostDisplayLocation == 0 ?
+        string formattedCost = config.CostDisplayStyle == CostDisplayStyle.TotalCount ? config.CostDisplayLocation == CostDisplayLocation.LeftSide ?
             $"{totalGhosts}x" : $"x{totalGhosts}" : $"({req.m_amount * totalGhosts})";
 
-        component.text = config.CostDisplayLocation == 0 ? formattedCost + component.text : component.text + formattedCost;
+        component.text = config.CostDisplayLocation == CostDisplayLocation.LeftSide ? formattedCost + component.text : component.text + formattedCost;
     }
 }

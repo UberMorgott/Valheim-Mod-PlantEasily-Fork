@@ -48,7 +48,7 @@ internal static class GhostStatus
         Heightmap.Biome allowed = plant?.m_biome ?? piece.m_onlyInBiome;
         Heightmap.Biome biome = heightmap.GetBiome(position);
 
-        if (allowed != 0 && (biome & allowed) == 0)
+        if (allowed != Heightmap.Biome.None && (biome & allowed) == Heightmap.Biome.None)
             return Status.WrongBiome;
 
         // Plant-specific checks

@@ -349,7 +349,7 @@ internal static class GhostGrid
                 MaterialMan.instance.SetValue(ghost, ShaderProps._EmissionColor, config.RootGhostHighlightColor * 0.7f);
             }
 
-            player.m_placementStatus = 0;
+            player.m_placementStatus = Player.PlacementStatus.Valid;
         }
     }
 }

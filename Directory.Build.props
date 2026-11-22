@@ -1,0 +1,8 @@
+<Project>
+  <!-- net48 reference assemblies without a Developer Pack install (standalone dotnet build / qgate) for the upstream
+       legacy projects. Advize_PlantEasily has its own Directory.Build.props (MSBuild stops at the nearest one) and its
+       own PackageReference; SDK-style projects (tests) are left alone. -->
+  <ItemGroup Condition="'$(UsingMicrosoftNETSdk)' != 'true'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

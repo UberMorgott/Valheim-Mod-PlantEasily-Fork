@@ -2,6 +2,8 @@ using System.Linq;
 using Advize_PlantEasily;
 using Xunit;
 
+namespace Advize_PlantEasily.Tests;
+
 public class GhostRefreshTests
 {
     // GhostGrid.Update visits ghost (cursor++ % total) UpdatesThisFrame times.

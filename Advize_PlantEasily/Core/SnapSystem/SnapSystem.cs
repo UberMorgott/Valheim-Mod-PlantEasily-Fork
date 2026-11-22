@@ -270,7 +270,7 @@ internal static class SnapSystem
     private static void ApplyGridOrientation(SnapPoint snap)
     {
         // This first condition can add a secondary function for grid snapping (hold shift and it allows overlapping placements)
-        if (/*AltPlacement || */config.GridSnappingStyle != 0)
+        if (/*AltPlacement || */config.GridSnappingStyle != GridSnappingStyle.Intelligent)
             return;
 
         Vector3 row = snap.rowDir;
