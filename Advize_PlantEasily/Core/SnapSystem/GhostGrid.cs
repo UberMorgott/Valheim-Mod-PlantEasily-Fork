@@ -47,6 +47,7 @@ internal static class GhostGrid
         GhostPlacementStatus.Clear();
 
         InitializeGhosts(rootGhost);
+        _gridVersion++; // the extras now sit on the new root (Player.cs:3617: the player's body), not on their cells
 
         DeactivateExcessGhosts();
     }
@@ -184,7 +185,10 @@ internal static class GhostGrid
         if (config.ShowGridDirections)
             ShowGridDirections();
 
-        if (!PlacementGhost)
+        // Vanilla hid the root (no ray hit: NoRayHits, Player.cs:4060; ground piece off terrain, :3908): its spot is stale
+        // (a rebuilt root sits on the player body, Player.cs:3617), so neither move nor judge it, or a Healthy root would
+        // turn the status back to Valid below and plant there.
+        if (!PlacementGhost || !PlacementGhost.activeSelf)
             return;
 
         Piece piece = Piece;
