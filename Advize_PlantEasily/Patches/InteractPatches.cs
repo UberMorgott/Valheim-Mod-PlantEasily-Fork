@@ -65,10 +65,20 @@ static class InteractPatches
         Player player = Player.m_localPlayer;
         Piece piece = prefab.GetComponent<Piece>();
 
-        if (!player.HaveRequirements(piece, Player.RequirementMode.CanBuild) && !player.m_noPlacementCost)
+        // Paid from the inventory, as vanilla CanBuild counts (Player.cs:2884): no gate fetches chest seeds for a replant, and a
+        // container-craft count (V+) includes chests the take may skip, which replanted for free.
+        if (!player.m_noPlacementCost && (!player.HaveRequirements(piece, Player.RequirementMode.CanBuild) || !InInventory(player, piece)))
             return;
 
         PlacementController.PlacePiece(player, __instance.gameObject, piece.gameObject);
         player.ConsumeResources(piece.m_resources, 0);
+    }
+
+    private static bool InInventory(Player player, Piece piece)
+    {
+        foreach (Piece.Requirement r in piece.m_resources)
+            if (r.m_resItem && r.m_amount > 0 && player.GetInventory().CountItems(r.m_resItem.m_itemData.m_shared.m_name) < r.m_amount)
+                return false;
+        return true;
     }
 }

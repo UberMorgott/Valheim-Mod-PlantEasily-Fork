@@ -100,10 +100,10 @@ sealed class ModConfig
         enableModKey = Config.BindInOrder("Controls", "EnableModKey", new KeyboardShortcut(KeyCode.F8),
             "Key to toggle on/off all mod features. See https://docs.unity3d.com/ScriptReference/KeyCode.html",
             a => { a.Description = "Key to toggle on/off all mod features."; });
-        enableSnappingKey = Config.BindInOrder("Controls", "EnableSnappingKey", new KeyboardShortcut(KeyCode.F10),
+        enableSnappingKey = Config.BindInOrder("Controls", "EnableSnappingKey", new KeyboardShortcut(KeyCode.Home),
             "Key to toggle on/off piece snapping functionality. See https://docs.unity3d.com/ScriptReference/KeyCode.html",
             a => { a.Description = "Key to toggle on/off piece snapping functionality."; });
-        toggleAutoReplantKey = Config.BindInOrder("Controls", "ToggleAutoReplantKey", new KeyboardShortcut(KeyCode.F6),
+        toggleAutoReplantKey = Config.BindInOrder("Controls", "ToggleAutoReplantKey", new KeyboardShortcut(KeyCode.Insert),
             "Key to toggle on/off the [Harvesting]ReplantOnHarvest setting. See https://docs.unity3d.com/ScriptReference/KeyCode.html",
             a => { a.Description = "Key to toggle on/off the [Harvesting]ReplantOnHarvest setting."; });
         increaseXKey = Config.BindInOrder("Controls", "IncreaseXKey", new KeyboardShortcut(KeyCode.RightArrow),

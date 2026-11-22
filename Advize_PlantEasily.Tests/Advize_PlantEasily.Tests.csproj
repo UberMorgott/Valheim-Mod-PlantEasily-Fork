@@ -13,6 +13,8 @@
   <ItemGroup>
     <PackageReference Include="xunit.v3" Version="4.0.2" />
     <Compile Include="..\Advize_PlantEasily\Core\SnapSystem\GhostRefresh.cs" Link="GhostRefresh.cs" />
+    <Compile Include="..\Advize_PlantEasily\Core\SnapSystem\PressCost.cs" Link="PressCost.cs" />
+    <Compile Include="..\Advize_PlantEasily\Core\ModEnums.cs" Link="ModEnums.cs" />
   </ItemGroup>
 
 </Project>

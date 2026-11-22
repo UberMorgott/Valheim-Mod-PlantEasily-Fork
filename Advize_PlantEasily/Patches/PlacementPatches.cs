@@ -90,10 +90,45 @@ static class PlacementPatches
             { Status.TooCold, "$piece_plant_toocold" }
         };
 
+        // Cost of the whole press on the selected piece while the other TryPlacePiece prefixes run: Morgott.Patcher's
+        // StationNetwork gates HaveRequirements(piece) and fetches that much from chests, and a gate covering one seed
+        // left the extras (judged against chest stock it never takes) planted unpaid. Restored before the body consumes.
+        private static Piece pressPiece;
+        private static int pressBaseCost;
+        internal static int CoveredPieces;
+
+        [HarmonyPriority(Priority.First)]
         static bool Prefix(Player __instance, Piece piece, ref bool __result)
         {
             if (!config.ModActive || !piece || !HoldingCultivator || !IsPlantOrPickable(piece.gameObject))
                 return true;
+
+            bool place = Judge(__instance, ref __result);
+            if (place && !__instance.m_noPlacementCost && piece.m_resources.Length > 0 && GhostGrid.MaxActiveGhosts > 0)
+            {
+                CoveredPieces = PressCost.Pieces(GhostGrid.GhostPlacementStatus, GhostGrid.MaxActiveGhosts, config.PreventInvalidPlanting);
+                (pressPiece, pressBaseCost) = (piece, piece.m_resources[0].m_amount);
+                piece.m_resources[0].m_amount = pressBaseCost * CoveredPieces;
+            }
+            return place;
+        }
+
+        internal static void RestoreCost()
+        {
+            if (pressPiece)
+                pressPiece.m_resources[0].m_amount = pressBaseCost;
+            pressPiece = null;
+        }
+
+        static System.Exception Finalizer(System.Exception __exception)
+        {
+            RestoreCost();
+            CoveredPieces = 0;
+            return __exception;
+        }
+
+        private static bool Judge(Player __instance, ref bool __result)
+        {
 
             if (PlacementController.IsPlanting)
             {
@@ -135,6 +170,14 @@ static class PlacementPatches
         }
     }
 
+    // After every other prefix judged the press cost: the body (PlacePiece, then UpdatePlacement's ConsumeResources) pays per piece.
+    [HarmonyPatch(typeof(Player), nameof(Player.TryPlacePiece))]
+    static class PlayerTryPlacePieceRestoreCost
+    {
+        [HarmonyPriority(Priority.Last)]
+        static void Prefix() => PlayerTryPlacePiece.RestoreCost();
+    }
+
     [HarmonyPatch(typeof(Player), nameof(Player.PlacePiece))]
     static class PlayerPlacePiece
     {
@@ -152,17 +195,12 @@ static class PlacementPatches
             if (GhostGrid.MaxActiveGhosts < 1)
                 return;
 
-            for (int i = 0; i < GhostGrid.MaxActiveGhosts; i++)
+            // The press re-aimed after the cost gate (Player.cs:3043): never plant more extras than the gated cost covered.
+            int maxExtras = PlayerTryPlacePiece.CoveredPieces > 0 ? PlayerTryPlacePiece.CoveredPieces - 1 : int.MaxValue;
+
+            for (int i = 0; i < GhostGrid.MaxActiveGhosts && GhostGrid.ValidExtraGhosts.Count < maxExtras; i++)
             {
-                Status status = GhostGrid.GhostPlacementStatus[i + 1];
-
-                bool isHealthy = status == Status.Healthy;
-                bool lackResourcesAllowed = status == Status.LackResources && __instance.m_noPlacementCost;
-                bool invalidAllowed = !config.PreventInvalidPlanting && status > Status.LackResources;
-
-                bool canPlant = isHealthy || lackResourcesAllowed || invalidAllowed;
-
-                if (canPlant)
+                if (PressCost.CanPlant(GhostGrid.GhostPlacementStatus[i + 1], __instance.m_noPlacementCost, config.PreventInvalidPlanting))
                     GhostGrid.ValidExtraGhosts.Add(GhostGrid.ExtraGhosts[i]);
             }
 
