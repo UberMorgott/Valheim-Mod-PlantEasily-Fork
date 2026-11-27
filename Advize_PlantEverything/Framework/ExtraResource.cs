@@ -1,6 +1,6 @@
 ﻿namespace Advize_PlantEverything;
 
-internal struct ExtraResource
+internal sealed class ExtraResource
 {
     public string prefabName;
     public string resourceName;
@@ -9,5 +9,5 @@ internal struct ExtraResource
     public string pieceName;
     public string pieceDescription;
 
-    internal readonly bool IsValid() => !(prefabName == default || prefabName.StartsWith("PE_Fake") || resourceName == default || resourceCost == default);
+    internal bool IsValid() => !(prefabName == default || prefabName.StartsWith("PE_Fake") || resourceName == default || resourceCost == default);
 }

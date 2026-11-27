@@ -1,7 +1,6 @@
 ﻿namespace Advize_Armoire;
 
 using System.Collections.Generic;
-using System.Linq;
 using static ItemDrop.ItemData;
 using static Skills;
 using static StaticMembers;
@@ -25,28 +24,50 @@ static class AppearanceCategorizer
     {
         // Get all relevant items potentially eligible to be available appearances, filter out disabled ones
         // If excludeDLCItems is false, the DLC condition is ignored. If true, it filters them out.
-        IEnumerable<ItemDrop> allRelevantItems = GetAllItemsByTypes(RelevantTypes)
-            .Where(item => item.m_itemData.m_shared.m_icons.Length > 0 && !config.DisabledAppearanceNames.Contains(item.name) && 
-            (!config.ExcludeDLCItems || string.IsNullOrEmpty(item.m_itemData.m_shared.m_dlc)) && (!config.ExcludeNPCItems || !HasExcludedPrefix(item.name)));
+        List<ItemDrop> allRelevantItems = GetAllItemsByTypes(RelevantTypes);
 
         // Categorize items
         Dictionary<AppearanceSlotType, List<ItemDrop>> categorized = [];
 
         foreach (ItemDrop item in allRelevantItems)
         {
+            if (item.m_itemData.m_shared.m_icons.Length <= 0 || config.DisabledAppearanceNames.Contains(item.name) ||
+                (config.ExcludeDLCItems && !string.IsNullOrEmpty(item.m_itemData.m_shared.m_dlc)) ||
+                (config.ExcludeNPCItems && HasExcludedPrefix(item.name)))
+            {
+                continue;
+            }
+
             ItemType type = item.m_itemData.m_shared.m_itemType;
             SkillType skill = item.m_itemData.m_shared.m_skillType;
 
             AddToCategory(categorized, MapAppearanceSlot(type, skill), item);
         }
 
-        // Make a deep copy and filter to items discovered by the player
-        Dictionary<AppearanceSlotType, List<ItemDrop>> unlockedCategorized = categorized
-            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(item => player.m_knownMaterial.Contains(item.m_itemData.m_shared.m_name)).ToList());
+        // Account for variants and filter to items discovered by the player
+        Dictionary<AppearanceSlotType, Dictionary<ItemDrop, int>> allAppearances = [];
+        Dictionary<AppearanceSlotType, Dictionary<ItemDrop, int>> unlockedAppearances = [];
 
-        // Account for variants
-        AllAppearances = categorized.ToDictionary(kvp => kvp.Key, kvp => BuildIconCountMap(kvp.Value));
-        UnlockedAppearances = unlockedCategorized.ToDictionary(kvp => kvp.Key, kvp => BuildIconCountMap(kvp.Value));
+        foreach (KeyValuePair<AppearanceSlotType, List<ItemDrop>> kvp in categorized)
+        {
+            Dictionary<ItemDrop, int> allMap = new(kvp.Value.Count);
+            Dictionary<ItemDrop, int> unlockedMap = [];
+
+            foreach (ItemDrop item in kvp.Value)
+            {
+                int iconCount = item.m_itemData.m_shared.m_icons.Length;
+                allMap.Add(item, iconCount);
+
+                if (player.m_knownMaterial.Contains(item.m_itemData.m_shared.m_name))
+                    unlockedMap.Add(item, iconCount);
+            }
+
+            allAppearances.Add(kvp.Key, allMap);
+            unlockedAppearances.Add(kvp.Key, unlockedMap);
+        }
+
+        AllAppearances = allAppearances;
+        UnlockedAppearances = unlockedAppearances;
     }
 
     private static void AddToCategory(Dictionary<AppearanceSlotType, List<ItemDrop>> dict, AppearanceSlotType? slotType, ItemDrop item)
@@ -111,10 +132,17 @@ static class AppearanceCategorizer
         };
     }
 
-    private static List<ItemDrop> GetAllItemsByTypes(HashSet<ItemType> types) => [.. ObjectDB.instance.m_items
-        .Select(go => go.GetComponent<ItemDrop>()).Where(item => item && types.Contains(item.m_itemData.m_shared.m_itemType))];
-
-    private static Dictionary<ItemDrop, int> BuildIconCountMap(List<ItemDrop> items) => items.ToDictionary(item => item, item => item.m_itemData.m_shared.m_icons.Length);
+    private static List<ItemDrop> GetAllItemsByTypes(HashSet<ItemType> types)
+    {
+        List<ItemDrop> items = [];
+        foreach (UnityEngine.GameObject go in ObjectDB.instance.m_items)
+        {
+            ItemDrop item = go.GetComponent<ItemDrop>();
+            if (item && types.Contains(item.m_itemData.m_shared.m_itemType))
+                items.Add(item);
+        }
+        return items;
+    }
 
     private static bool HasExcludedPrefix(string name)
     {

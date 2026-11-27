@@ -166,13 +166,13 @@ public partial class ArmoireUI : MonoBehaviour
     {
         for (int i = 0; i < slotButtons.Count; i++)
         {
-            int index = i; // avoids closure issue
             Button button = slotButtons[i];
-            button.onClick.AddListener(() => AppearanceSlotButtonClicked(index));
+            SlotButtonListener listener = new(this, i);
+            button.onClick.AddListener(listener.OnClick);
 
             ArmoireInputHandler inputHandler = button.GetComponent<ArmoireInputHandler>();
-            inputHandler.onRightClick.AddListener(() => AppearanceSlotButtonRightClicked(index));
-            inputHandler.onSelectChange.AddListener((isSelected) => UpdateAppearanceSlotButtonSelection(isSelected, index));
+            inputHandler.onRightClick.AddListener(listener.OnRightClick);
+            inputHandler.onSelectChange.AddListener(listener.OnSelectChange);
         }
     }
 
@@ -185,7 +185,8 @@ public partial class ArmoireUI : MonoBehaviour
     private void SetupScrollViewButton(Button button, UnityAction clickAction)
     {
         button.onClick.AddListener(clickAction);
-        button.GetComponent<ArmoireInputHandler>().onSelectChange.AddListener((isSelected) => UpdateScrollViewButtonSelection(isSelected, button.gameObject));
+        ScrollViewButtonListener listener = new(this, button.gameObject);
+        button.GetComponent<ArmoireInputHandler>().onSelectChange.AddListener(listener.OnSelectChange);
     }
 
     private void SetupToggleHiddenListener() => toggleHidden.onValueChanged.AddListener(ToggleHiddenClicked);
@@ -201,13 +202,28 @@ public partial class ArmoireUI : MonoBehaviour
         int direction = -1;
         foreach (Button button in cycleOutfitButtons)
         {
-            int closureDirection = direction; // avoids closure issue
-            button.onClick.AddListener(() => CycleOutfitButtonClicked(closureDirection));
+            button.onClick.AddListener(direction < 0 ? CycleOutfitPrevious : CycleOutfitNext);
             direction = Math.Abs(direction);
         }
 
         saveOutfitButton.onClick.AddListener(SaveOutfitButtonClicked);
         loadOutfitButton.onClick.AddListener(LoadOutfitButtonClicked);
         deleteOutfitButton.onClick.AddListener(DeleteOutfitButtonClicked);
+    }
+
+    private void CycleOutfitPrevious() => CycleOutfitButtonClicked(-1);
+    private void CycleOutfitNext() => CycleOutfitButtonClicked(1);
+
+    private sealed class SlotButtonListener(ArmoireUI ui, int slotIndex)
+    {
+        internal void OnClick() => ui.AppearanceSlotButtonClicked(slotIndex);
+        internal void OnRightClick() => ui.AppearanceSlotButtonRightClicked(slotIndex);
+        internal void OnSelectChange(bool isSelected) => ui.UpdateAppearanceSlotButtonSelection(isSelected, slotIndex);
+    }
+
+    private sealed class ScrollViewButtonListener(ArmoireUI ui, GameObject buttonObject, int buttonIndex = -1, int variant = 0)
+    {
+        internal void OnClick() => ui.UnlockedAppearanceOnClick(buttonIndex, variant);
+        internal void OnSelectChange(bool isSelected) => ui.UpdateScrollViewButtonSelection(isSelected, buttonObject);
     }
 }

@@ -17,7 +17,7 @@ static class UIPatches
         int totalGhosts = Mathf.Min(config.Rows * config.Columns, config.MaxConcurrentPlacements);
 
         string formattedCost = config.CostDisplayStyle == CostDisplayStyle.TotalCount ? config.CostDisplayLocation == CostDisplayLocation.LeftSide ?
-            $"{totalGhosts}x" : $"x{totalGhosts}" : $"({req.m_amount * totalGhosts})";
+            $"{totalGhosts.ToString()}x" : $"x{totalGhosts.ToString()}" : $"({(req.m_amount * totalGhosts).ToString()})";
 
         component.text = config.CostDisplayLocation == CostDisplayLocation.LeftSide ? formattedCost + component.text : component.text + formattedCost;
     }

@@ -147,7 +147,13 @@ public partial class Spyglass : BaseUnityPlugin
         using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"Advize_{PluginName}.Assets.{fileName}");
 
         byte[] data = new byte[stream.Length];
-        stream.Read(data, 0, data.Length);
+        int offset = 0;
+        while (offset < data.Length)
+        {
+            int bytesRead = stream.Read(data, offset, data.Length - offset);
+            if (bytesRead == 0) break;
+            offset += bytesRead;
+        }
 
         Texture2D texture = new(0, 0);
         LoadImageMethod.Invoke(null, [texture, data]);
@@ -211,11 +217,11 @@ public partial class Spyglass : BaseUnityPlugin
         UnityEngine.Object[] array = Resources.FindObjectsOfTypeAll(typeof(GameObject));
         for (int i = 0; i < array.Length; i++)
         {
-            GameObject gameObject = (GameObject)array[i];
+            GameObject prefabObj = (GameObject)array[i];
 
-            if (!prefabRefs.ContainsKey(gameObject.name)) continue;
+            if (!prefabRefs.ContainsKey(prefabObj.name)) continue;
 
-            prefabRefs[gameObject.name] = gameObject;
+            prefabRefs[prefabObj.name] = prefabObj;
 
             if (!prefabRefs.Any(key => !key.Value))
             {
@@ -244,7 +250,7 @@ public partial class Spyglass : BaseUnityPlugin
         if (zoomLevel == 1)
         {
             startingFov = currentFov = GameCamera.m_instance.m_fov;
-            Dbgl($"ChangeZoom() starting fov was {startingFov}");
+            Dbgl($"ChangeZoom() starting fov was {startingFov.ToString()}");
         }
 
         zoomLevel += delta;
@@ -265,11 +271,11 @@ public partial class Spyglass : BaseUnityPlugin
         {
             case -1:
                 currentFov = Mathf.Max(currentFov + (config.FovReductionFactor + ((zoomLevel + 1) * config.FovReductionFactor)), 5);
-                Dbgl($"Spyglass zoomed out, current fov should be {currentFov}");
+                Dbgl($"Spyglass zoomed out, current fov should be {currentFov.ToString()}");
                 break;
             case 1:
                 currentFov = Mathf.Max(currentFov - (config.FovReductionFactor + (zoomLevel * config.FovReductionFactor)), 5);
-                Dbgl($"Spyglass zoomed in, current fov should be {currentFov}");
+                Dbgl($"Spyglass zoomed in, current fov should be {currentFov.ToString()}");
                 break;
         }
     }
@@ -279,7 +285,7 @@ public partial class Spyglass : BaseUnityPlugin
         zoomLevel = 1;
         GameCamera.m_instance.m_fov = currentFov = startingFov;
         isZooming = false;
-        Dbgl($"StopZoom() fov is now {GameCamera.m_instance.m_fov}");
+        Dbgl($"StopZoom() fov is now {GameCamera.m_instance.m_fov.ToString()}");
     }
 
     private static bool IsSpyglassEquipped(Player player) => player.GetRightItem()?.m_shared.m_name == "$csSpyglassName";

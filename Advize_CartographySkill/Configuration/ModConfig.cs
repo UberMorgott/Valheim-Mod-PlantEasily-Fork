@@ -91,7 +91,7 @@ class ModConfig
             if (!EnableSkill)
             {
                 Minimap.instance.m_exploreRadius = BaseExploreRadius;
-                CartographySkill.Dbgl($"enableSkill set to false. Explore Radius is now: {BaseExploreRadius}");
+                CartographySkill.Dbgl($"enableSkill set to false. Explore Radius is now: {BaseExploreRadius.ToString()}");
             }
         };
 

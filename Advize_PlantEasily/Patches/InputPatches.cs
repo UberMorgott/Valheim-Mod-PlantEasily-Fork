@@ -24,21 +24,21 @@ static class InputPatches
         if (config.EnableModKey.IsDown())
         {
             config.ModActive = !config.ModActive;
-            Dbgl($"modActive was {!config.ModActive} setting to {config.ModActive}");
-            __instance.Message(MessageHud.MessageType.TopLeft, $"PlantEasily.ModActive: {config.ModActive}");
+            Dbgl($"modActive was {(!config.ModActive).ToString()} setting to {config.ModActive.ToString()}");
+            __instance.Message(MessageHud.MessageType.TopLeft, $"PlantEasily.ModActive: {config.ModActive.ToString()}");
             __instance.SetupPlacementGhost();
         }
         if (config.EnableSnappingKey.IsDown())
         {
             config.SnapActive = !config.SnapActive;
-            Dbgl($"snapActive was {!config.SnapActive} setting to {config.SnapActive}");
-            __instance.Message(MessageHud.MessageType.TopLeft, $"PlantEasily.SnapActive: {config.SnapActive}");
+            Dbgl($"snapActive was {(!config.SnapActive).ToString()} setting to {config.SnapActive.ToString()}");
+            __instance.Message(MessageHud.MessageType.TopLeft, $"PlantEasily.SnapActive: {config.SnapActive.ToString()}");
         }
         if (config.ToggleAutoReplantKey.IsDown())
         {
             config.ReplantOnHarvest = !config.ReplantOnHarvest;
-            Dbgl($"replantOnHarvest was {!config.ReplantOnHarvest} setting to {config.ReplantOnHarvest}");
-            __instance.Message(MessageHud.MessageType.TopLeft, $"PlantEasily.ReplantOnHarvest: {config.ReplantOnHarvest}");
+            Dbgl($"replantOnHarvest was {(!config.ReplantOnHarvest).ToString()} setting to {config.ReplantOnHarvest.ToString()}");
+            __instance.Message(MessageHud.MessageType.TopLeft, $"PlantEasily.ReplantOnHarvest: {config.ReplantOnHarvest.ToString()}");
         }
 
         if (ZInput.GetKeyDown(config.KeyboardModifierKey) || ZInput.GetKeyDown(config.GamepadModifierKey))

@@ -218,7 +218,7 @@ static class StaticContent
                 ResourceCost = config.RaspberryCost,
                 resourceReturn = config.RaspberryReturn,
                 respawnTime = config.RaspberryRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.Meadows : 0,
+                biome = enforceBiomes ? Heightmap.Biome.Meadows : Heightmap.Biome.None,
                 icon = true,
                 isGrounded = true,
                 recover = config.RecoverResources
@@ -229,7 +229,7 @@ static class StaticContent
                 ResourceCost = config.BlueberryCost,
                 resourceReturn = config.BlueberryReturn,
                 respawnTime = config.BlueberryRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.BlackForest : 0,
+                biome = enforceBiomes ? Heightmap.Biome.BlackForest : Heightmap.Biome.None,
                 icon = true,
                 isGrounded = true,
                 recover = config.RecoverResources
@@ -240,7 +240,7 @@ static class StaticContent
                 ResourceCost = config.CloudberryCost,
                 resourceReturn = config.CloudberryReturn,
                 respawnTime = config.CloudberryRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.Plains : 0,
+                biome = enforceBiomes ? Heightmap.Biome.Plains : Heightmap.Biome.None,
                 icon = true,
                 isGrounded = true,
                 recover = config.RecoverResources
@@ -251,7 +251,7 @@ static class StaticContent
                 ResourceCost = config.LingonberryCost,
                 resourceReturn = config.LingonberryReturn,
                 respawnTime = config.LingonberryRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.DeepNorth : 0,
+                biome = enforceBiomes ? Heightmap.Biome.DeepNorth : Heightmap.Biome.None,
                 icon = true,
                 isGrounded = true,
                 recover = config.RecoverResources
@@ -292,7 +292,7 @@ static class StaticContent
                 ResourceCost = config.ThistleCost,
                 resourceReturn = config.ThistleReturn,
                 respawnTime = config.ThistleRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.BlackForest : 0,
+                biome = enforceBiomes ? Heightmap.Biome.BlackForest : Heightmap.Biome.None,
                 recover = config.RecoverResources,
                 Name = "PickableThistle",
                 isGrounded = true
@@ -303,7 +303,7 @@ static class StaticContent
                 ResourceCost = config.DandelionCost,
                 resourceReturn = config.DandelionReturn,
                 respawnTime = config.DandelionRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.Meadows : 0,
+                biome = enforceBiomes ? Heightmap.Biome.Meadows : Heightmap.Biome.None,
                 recover = config.RecoverResources,
                 Name = "PickableDandelion",
                 isGrounded = true
@@ -314,7 +314,7 @@ static class StaticContent
                 ResourceCost = config.SmokePuffCost,
                 resourceReturn = config.SmokePuffReturn,
                 respawnTime = config.SmokePuffRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.AshLands : 0,
+                biome = enforceBiomes ? Heightmap.Biome.AshLands : Heightmap.Biome.None,
                 recover = config.RecoverResources,
                 Name = "PickableSmokePuff",
                 isGrounded = true,
@@ -325,7 +325,7 @@ static class StaticContent
                 ResourceCost = config.FiddleheadCost,
                 resourceReturn = config.FiddleheadReturn,
                 respawnTime = config.FiddleheadRespawnTime,
-                biome = enforceBiomes ? Heightmap.Biome.AshLands : 0,
+                biome = enforceBiomes ? Heightmap.Biome.AshLands : Heightmap.Biome.None,
                 icon = true,
                 recover = config.RecoverResources,
                 Name = "PickableFiddlehead",
@@ -761,9 +761,9 @@ static class StaticContent
 
         foreach (GameObject customPlant in customPlants)
         {
-			//if (!customPlant.TryGetComponent<Plant>(out Plant plant) || !customPlant.TryGetComponent<Piece>(out _) || !plant.m_grownPrefabs[0].TryGetComponent<Pickable>(out _))
-			//    continue;
-			Plant plant = customPlant.GetComponent<Plant>();
+            //if (!customPlant.TryGetComponent<Plant>(out Plant plant) || !customPlant.TryGetComponent<Piece>(out _) || !plant.m_grownPrefabs[0].TryGetComponent<Pickable>(out _))
+            //    continue;
+            Plant plant = customPlant.GetComponent<Plant>();
 
             newList.Add(new ModdedPlantDB
             {

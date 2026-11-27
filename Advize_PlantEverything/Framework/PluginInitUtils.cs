@@ -204,7 +204,7 @@ static class PluginInitUtils
             }
 
             Pickable pickable = pdb.Prefab.GetComponent<Pickable>();
-            if (pickable && !deserializedExtraResources.Any(x => x.prefabName == pdb.key))
+            if (pickable && !IsExtraResource(pdb.key))
             {
                 pickable.m_respawnTimeMinutes = pdb.respawnTime;
                 pickable.m_amount = pdb.resourceReturn;
@@ -263,6 +263,15 @@ static class PluginInitUtils
         piecesInitialized = true;
     }
 
+    private static bool IsExtraResource(string prefabName)
+    {
+        foreach (ExtraResource er in deserializedExtraResources)
+            if (er.prefabName == prefabName)
+                return true;
+
+        return false;
+    }
+
     internal static void InitSaplingRefs()
     {
         Dbgl("InitSaplingRefs");
@@ -282,7 +291,10 @@ static class PluginInitUtils
 
         ModifyTreeDrops();
 
-        foreach (SaplingDB sdb in Enumerable.Concat(GenerateVanillaSaplingRefs(), saplingRefs))
+        List<SaplingDB> allSaplings = GenerateVanillaSaplingRefs();
+        allSaplings.AddRange(saplingRefs);
+
+        foreach (SaplingDB sdb in allSaplings)
         {
             Plant plant = sdb.Prefab.GetComponent<Plant>();
             Piece piece = sdb.Prefab.GetComponent<Piece>();
@@ -325,9 +337,8 @@ static class PluginInitUtils
             Transform t = prefabRefs["Birch_Sapling"].transform.Find(p[0]);
 
             Shader pieceShader;
-            if (!isDedicatedServer)
+            if (!isDedicatedServer && AssetID.TryParse("f6de4704e075b4095ae641aed283b641", out AssetID id))
             {
-                AssetID.TryParse("f6de4704e075b4095ae641aed283b641", out AssetID id);
                 SoftReference<Shader> shader = new(id);
                 shader.Load();
                 pieceShader = shader.Asset;

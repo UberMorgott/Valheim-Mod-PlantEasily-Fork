@@ -20,7 +20,7 @@ internal sealed class PlacementController : MonoBehaviour
 
     private static PlacementController Initialize()
     {
-        GameObject go = new($"PlantEasily_PlacementController_{System.Guid.NewGuid()}")
+        GameObject go = new($"PlantEasily_PlacementController_{System.Guid.NewGuid().ToString()}")
         {
             hideFlags = HideFlags.HideAndDontSave
         };

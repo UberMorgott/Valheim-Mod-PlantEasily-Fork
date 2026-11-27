@@ -161,20 +161,21 @@ internal static class SnapSystem
         ColumnDirection = Vector3.Cross(Vector3.up, RowDirection);
     }
 
-    private static IEnumerable<Transform> ValidPrimaryCollisions(Vector3 origin, float spacingRadius)
+    private static List<Transform> ValidPrimaryCollisions(Vector3 origin, float spacingRadius)
     {
-        int count = 0;
+        List<Transform> valid = new(MaxValidCollisions);
 
         foreach (Transform primaryCollision in CollisionScanner.Scan(origin, spacingRadius))
         {
             if (!IsPlantOrPickable(primaryCollision.gameObject))
                 continue;
 
-            if (++count > MaxValidCollisions)
-                yield break;
-
-            yield return primaryCollision;
+            valid.Add(primaryCollision);
+            if (valid.Count >= MaxValidCollisions)
+                break;
         }
+
+        return valid;
     }
 
     private static (SnapPoint snap, float distance) FindNearestManhattan(List<SnapPoint> snapPoints)

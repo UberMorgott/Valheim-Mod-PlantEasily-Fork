@@ -12,7 +12,7 @@ public partial class CartographySkill
         static void Postfix(Minimap __instance)
         {
             __instance.m_exploreRadius = config.BaseExploreRadius;
-            Dbgl($"Explore Radius is now: {__instance.m_exploreRadius}");
+            Dbgl($"Explore Radius is now: {__instance.m_exploreRadius.ToString()}");
         }
     }
 
@@ -100,8 +100,8 @@ public partial class CartographySkill
             Skills.Skill skill = __instance.GetSkill((Skills.SkillType)SKILL_TYPE);
             skill.m_level = Mathf.Clamp(skill.m_level + value, 0f, 100f);
 
-            ___m_player.Message(MessageHud.MessageType.TopLeft, $"Skill increased {config.SkillName}: {(int)skill.m_level}", 0, skill.m_info.m_icon);
-            Console.instance.Print($"Skill {config.SkillName} = {skill.m_level}");
+            ___m_player.Message(MessageHud.MessageType.TopLeft, $"Skill increased {config.SkillName}: {((int)skill.m_level).ToString()}", 0, skill.m_info.m_icon);
+            Console.instance.Print($"Skill {config.SkillName} = {skill.m_level.ToString()}");
 
             UpdateExploreRadius();
 

@@ -37,18 +37,35 @@ public class PressCostTests
         for (int max = 0; max <= 40; max++)
             for (int stock = 0; stock <= max + 2; stock++)
             {
-                int calls = 0;
-                int found = PressCost.Affordable(max, n => { calls++; return n <= stock; });
+                AffordProbe probe = new(stock);
+                int found = PressCost.Affordable(max, probe.CanAfford);
                 Assert.Equal(System.Math.Min(stock, max), found);
-                Assert.True(calls <= 7, $"max {max} stock {stock}: {calls} checks");
+                Assert.True(probe.Calls <= 7, $"max {max} stock {stock}: {probe.Calls} checks");
             }
     }
 
     [Fact]
     public void AffordableFullGridIsOneCheck()
     {
-        int calls = 0;
-        Assert.Equal(500, PressCost.Affordable(500, _ => { calls++; return true; }));
-        Assert.Equal(1, calls);
+        AffordProbe probe = new(0);
+        Assert.Equal(500, PressCost.Affordable(500, probe.AlwaysAfford));
+        Assert.Equal(1, probe.Calls);
+    }
+
+    private sealed class AffordProbe(int stock)
+    {
+        public int Calls;
+
+        public bool CanAfford(int n)
+        {
+            Calls++;
+            return n <= stock;
+        }
+
+        public bool AlwaysAfford(int _)
+        {
+            Calls++;
+            return true;
+        }
     }
 }

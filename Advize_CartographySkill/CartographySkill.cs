@@ -52,7 +52,7 @@ public partial class CartographySkill : BaseUnityPlugin
         float skillLevel = Player.m_localPlayer.GetSkillFactor((Skills.SkillType)SKILL_TYPE) * 100;
         float newExploreRadius = config.BaseExploreRadius + (config.ExploreRadiusIncrease * skillLevel);
 
-        Dbgl($"Previous explore radius was: {Minimap.instance.m_exploreRadius} new radius is: {newExploreRadius}");
+        Dbgl($"Previous explore radius was: {Minimap.instance.m_exploreRadius.ToString()} new radius is: {newExploreRadius.ToString()}");
         Minimap.instance.m_exploreRadius = newExploreRadius;
     }
 
@@ -64,7 +64,7 @@ public partial class CartographySkill : BaseUnityPlugin
     internal static void UpdateLocalization(object sender, EventArgs e)
     {
         Localization.instance.AddWord($"csSkillDescription", config.SkillDescription);
-        Localization.instance.AddWord($"skill_{SKILL_TYPE}", config.SkillName);
+        Localization.instance.AddWord($"skill_{SKILL_TYPE.ToString()}", config.SkillName);
     }
 
     internal static AssetBundle LoadAssetBundle(string fileName)

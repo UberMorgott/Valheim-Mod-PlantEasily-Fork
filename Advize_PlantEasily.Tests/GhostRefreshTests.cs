@@ -7,8 +7,14 @@ namespace Advize_PlantEasily.Tests;
 public class GhostRefreshTests
 {
     // GhostGrid.Update visits ghost (cursor++ % total) UpdatesThisFrame times.
-    private static int[] Visited(bool press, int batch, int total, int cursor) =>
-        Enumerable.Range(0, GhostRefresh.UpdatesThisFrame(press, batch, total)).Select(i => (cursor + i) % total).ToArray();
+    private static int[] Visited(bool press, int batch, int total, int cursor)
+    {
+        int count = GhostRefresh.UpdatesThisFrame(press, batch, total);
+        int[] visited = new int[count];
+        for (int i = 0; i < count; i++)
+            visited[i] = (cursor + i) % total;
+        return visited;
+    }
 
     [Theory]
     [InlineData(4, 20, 0)]

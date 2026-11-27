@@ -12,14 +12,16 @@ internal static class CollisionScanner
 
     private const int MaxRawColliders = 50;
 
-    internal static IEnumerable<Transform> Scan(Vector3 origin, float spacingRadius)
+    internal static List<Transform> Scan(Vector3 origin, float spacingRadius)
     {
         int count = Physics.OverlapSphereNonAlloc(origin, spacingRadius, _primary, CollisionMask);
+        List<Transform> results = new(count);
         for (int i = 0; i < count; i++)
-            yield return _primary[i].transform.root;
+            results.Add(_primary[i].transform.root);
+        return results;
     }
 
-    internal static IEnumerable<Transform> ScanNeighbours(Transform primary, float expectedSpacing)
+    internal static List<Transform> ScanNeighbours(Transform primary, float expectedSpacing)
     {
         float tolerance = Mathf.Max(expectedSpacing * 0.01f, 0.005f);
 
@@ -32,6 +34,7 @@ internal static class CollisionScanner
         int neighbours = Physics.OverlapSphereNonAlloc(primary.position, max, _secondary, CollisionMask);
 
         Vector3 origin = primary.position;
+        List<Transform> results = new(8);
 
         for (int i = 0; i < neighbours; i++)
         {
@@ -43,7 +46,9 @@ internal static class CollisionScanner
             float distanceSquared = (root.position - origin).sqrMagnitude;
 
             if (distanceSquared >= minSquared && distanceSquared <= maxSquared)
-                yield return root;
+                results.Add(root);
         }
+
+        return results;
     }
 }

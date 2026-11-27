@@ -16,8 +16,8 @@ static class AppearanceTracker
         TotalUnlocked = UnlockedAppearances.Values.Sum(dict => dict.Values.Sum());
         TotalCollectable = AllAppearances.Values.Sum(dict => dict.Values.Sum());
 
-        Dbgl($"UnlockedAppearances Count: {TotalUnlocked}");
-        Dbgl($"AllAppearances Count: {TotalCollectable}");
+        Dbgl($"UnlockedAppearances Count: {TotalUnlocked.ToString()}");
+        Dbgl($"AllAppearances Count: {TotalCollectable.ToString()}");
     }
 
     internal static double UnlockedPercentage => TotalCollectable == 0 ? 0 : (double)TotalUnlocked / TotalCollectable;

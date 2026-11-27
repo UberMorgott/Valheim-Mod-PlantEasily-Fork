@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using HarmonyLib;
 using static StaticMembers;
 
@@ -9,6 +10,7 @@ using static StaticMembers;
 static class VersionHandshake
 {
     static readonly List<ZRpc> ValidatedPeers = [];
+    static readonly object[] ErrorVersionArgs = [Convert.ChangeType("3", typeof(int), CultureInfo.InvariantCulture)];
     static string ConnectionError = string.Empty;
     static bool ClientVersionValidated = false;
 
@@ -27,12 +29,12 @@ static class VersionHandshake
             {
                 // Version mismatch, disconnect client from server
                 Dbgl($"Peer ({rpc.m_socket.GetHostName()}) has incompatible version, disconnecting...", forceLog: true, level: BepInEx.Logging.LogLevel.Warning);
-                rpc.Invoke("Error", 3);
+                rpc.Invoke("Error", ErrorVersionArgs);
             }
-            
+
             return;
         }
-        
+
         if (isServer)
         {
             Dbgl($"Adding peer ({rpc.m_socket.GetHostName()}) to validated list");
@@ -73,7 +75,7 @@ static class VersionHandshake
         if (isServer)
         {
             Dbgl($"Peer ({rpc.m_socket.GetHostName()}) never sent version or couldn't due to previous disconnect, disconnecting", forceLog: true, level: BepInEx.Logging.LogLevel.Warning);
-            rpc.Invoke("Error", 3);
+            rpc.Invoke("Error", ErrorVersionArgs);
         }
         else
         {

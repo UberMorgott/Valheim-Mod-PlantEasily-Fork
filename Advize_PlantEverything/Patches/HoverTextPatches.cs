@@ -35,17 +35,17 @@ static class HoverTextPatches
         TimeSpan timeSpan = ZNet.instance.GetTime() - new DateTime(pickedTime);
         double respawnTimeSeconds = GetSecondsToRespawnPickable(__instance);
         double percent = timeSpan.TotalSeconds / respawnTimeSeconds;
-                
+
         string timeString = FormatTime(percent, respawnTimeSeconds - timeSpan.TotalSeconds);
 
         __result = Localization.instance.Localize(__instance.GetHoverName()) + $"\n{timeString}";
-        
+
     }
 
     [HarmonyPatch(typeof(Plant), nameof(Plant.GetHoverText))]
     static void Postfix(Plant __instance, ref string __result)
     {
-        if (!config.EnablePlantTimers || __instance.m_status != 0 || __instance.m_nview?.GetZDO() is null) return;
+        if (!config.EnablePlantTimers || __instance.m_status != Plant.Status.Healthy || __instance.m_nview?.GetZDO() is null) return;
 
         double respawnTimeSeconds = GetSecondsToGrowPlant(__instance);
         double percent = __instance.TimeSincePlanted() / __instance.GetGrowTime();
@@ -77,15 +77,15 @@ static class HoverTextPatches
         string color = ColorUtility.ToHtmlStringRGB(HoverGradient.Evaluate(clampedPercentage));
 
         if (config.GrowthAsPercentage)
-            return $"(<color=#{color}>{clampedPercentage:P0}</color>)";
-        
+            return $"(<color=#{color}>{clampedPercentage.ToString("P0")}</color>)";
+
         if (secondsToGrow <= 0)
             return Localization.instance.Localize($"<color=#{color}>$hud_ready</color>");
 
         TimeSpan t = TimeSpan.FromSeconds(secondsToGrow);
 
         string timeRemaining = t.Hours <= 0 ? t.Minutes <= 0 ?
-            $"{t.Seconds:D2}s" : $"{t.Minutes:D2}m {t.Seconds:D2}s" : $"{t.Hours:D2}h {t.Minutes:D2}m {t.Seconds:D2}s";
+            $"{t.Seconds.ToString("D2")}s" : $"{t.Minutes.ToString("D2")}m {t.Seconds.ToString("D2")}s" : $"{t.Hours.ToString("D2")}h {t.Minutes.ToString("D2")}m {t.Seconds.ToString("D2")}s";
 
         return $"({Localization.instance.Localize("$peGrowthTimeHoverPrefix")} <color=#{color}>{timeRemaining}</color>)";
     }

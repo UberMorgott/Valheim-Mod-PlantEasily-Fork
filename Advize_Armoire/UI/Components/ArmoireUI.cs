@@ -114,19 +114,19 @@ public partial class ArmoireUI : MonoBehaviour
         UpdateOutfitIcons();
     }
 
-    private void UpdateOutfitLabel() => outfitNumBG.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = $"Outfit {_currentOutfitIndex + 1}";
+    private void UpdateOutfitLabel() => outfitNumBG.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = $"Outfit {(_currentOutfitIndex + 1).ToString()}";
 
     private void UpdateOutfitState()
     {
         if (Player.m_localPlayer.m_customData.TryGetValue(GetOutfitKey(), out string data))
         {
-            Dbgl($"Data in outfit slot {_currentOutfitIndex + 1}");
+            Dbgl($"Data in outfit slot {(_currentOutfitIndex + 1).ToString()}");
             UpdateOutfitButtonStates(true, new Color32(255, 161, 60, 255));
             AppearanceData.LoadAppearanceData(new ZPackage(data), OutfitOverrides[_currentOutfitIndex]);
             return;
         }
 
-        Dbgl($"No data in outfit slot {_currentOutfitIndex + 1}");
+        Dbgl($"No data in outfit slot {(_currentOutfitIndex + 1).ToString()}");
         UpdateOutfitButtonStates(false, new Color32(128, 128, 128, 255));
     }
 
@@ -229,7 +229,8 @@ public partial class ArmoireUI : MonoBehaviour
 
     public void UpdateItemSlotIcons(Dictionary<AppearanceSlotType, AppearanceSlot> overrides)
     {
-        Array.ForEach(ActiveOverrides.Keys.ToArray(), itemCategory => UpdateItemIcon(itemCategory, overrides));
+        foreach (AppearanceSlotType itemCategory in ActiveOverrides.Keys)
+            UpdateItemIcon(itemCategory, overrides);
     }
 
     public void UpdateItemIcon(AppearanceSlotType itemCategory, Dictionary<AppearanceSlotType, AppearanceSlot> overrides)
@@ -317,7 +318,7 @@ public partial class ArmoireUI : MonoBehaviour
         ToggleExtraneousButtons();
     }
 
-    private string GetOutfitKey() => $"Armoire_Outfit{_currentOutfitIndex + 1}";
+    private string GetOutfitKey() => $"Armoire_Outfit{(_currentOutfitIndex + 1).ToString()}";
 
     private void UpdateOutfitButtonStates(bool enabled, Color32 color)
     {
@@ -355,17 +356,16 @@ public partial class ArmoireUI : MonoBehaviour
 
         if (itemIcon)
             iconTransform.GetComponent<Image>().sprite = itemIcon;
-        
+
         int buttonIndex = 0;
         foreach (KeyValuePair<ItemDrop, int> kvp in UnlockedAppearances[slotType])
         {
             for (int iconIndex = 0; iconIndex < kvp.Value; iconIndex++)
             {
                 GameObject armoireSlotButton = CreateArmoireSlot(kvp.Key.name, iconIndex);
-                int closureIndex = buttonIndex; // avoids closure issue
-                int closureIndex2 = iconIndex; // avoids closure issue
-                armoireSlotButton.GetComponent<Button>().onClick.AddListener(() => UnlockedAppearanceOnClick(closureIndex, closureIndex2));
-                armoireSlotButton.GetComponent<ArmoireInputHandler>().onSelectChange.AddListener((isSelected) => UpdateScrollViewButtonSelection(isSelected, armoireSlotButton));
+                ScrollViewButtonListener listener = new(this, armoireSlotButton, buttonIndex, iconIndex);
+                armoireSlotButton.GetComponent<Button>().onClick.AddListener(listener.OnClick);
+                armoireSlotButton.GetComponent<ArmoireInputHandler>().onSelectChange.AddListener(listener.OnSelectChange);
                 generatedScrollViewButtons.Add(armoireSlotButton);
                 buttonIndex++;
             }
@@ -378,7 +378,8 @@ public partial class ArmoireUI : MonoBehaviour
                 for (int iconIndex = 0; iconIndex < kvp.Value; iconIndex++)
                 {
                     GameObject armoireSlotButton = CreateArmoireSlot(kvp.Key.name, iconIndex, locked: true);
-                    armoireSlotButton.GetComponent<ArmoireInputHandler>().onSelectChange.AddListener((isSelected) => UpdateScrollViewButtonSelection(isSelected, armoireSlotButton));
+                    ScrollViewButtonListener listener = new(this, armoireSlotButton);
+                    armoireSlotButton.GetComponent<ArmoireInputHandler>().onSelectChange.AddListener(listener.OnSelectChange);
                     generatedScrollViewButtons.Add(armoireSlotButton);
                 }
             }
@@ -393,7 +394,7 @@ public partial class ArmoireUI : MonoBehaviour
             break;
         }
 
-        _acquiredAppearanceText.text = $"{AppearanceTracker.Unlocked(slotType)} / {AppearanceTracker.Total(slotType)}";
+        _acquiredAppearanceText.text = $"{AppearanceTracker.Unlocked(slotType).ToString()} / {AppearanceTracker.Total(slotType).ToString()}";
     }
 
     internal void DestroyScrollableGrid()
@@ -421,7 +422,7 @@ public partial class ArmoireUI : MonoBehaviour
 
         UITooltip tooltip = newSlot.GetComponent<UITooltip>();
         tooltip.m_topic = locked ? "???" : ZNetScene.instance.GetPrefab(prefabName).GetComponent<ItemDrop>().m_itemData.m_shared.m_name;
-        tooltip.m_text = !locked || config.ShowUndiscoveredHoverDetails ? $"</i><size=90%>{prefabName}{(variant > 0 ? $"\nVariant: {variant}" : "")}<i>" : "";
+        tooltip.m_text = !locked || config.ShowUndiscoveredHoverDetails ? $"</i><size=90%>{prefabName}{(variant > 0 ? $"\nVariant: {variant.ToString()}" : "")}<i>" : "";
 
         Image image = newSlot.transform.GetChild(0).GetComponent<Image>();
 

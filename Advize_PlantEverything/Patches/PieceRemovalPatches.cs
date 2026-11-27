@@ -1,5 +1,7 @@
 ﻿namespace Advize_PlantEverything;
 
+using System;
+using System.Globalization;
 using HarmonyLib;
 using UnityEngine;
 using static PluginUtils;
@@ -8,6 +10,7 @@ using static StaticMembers;
 [HarmonyPatch]
 static class PieceRemovalPatches
 {
+    static readonly object[] ZeroBonusArgs = [Convert.ChangeType("0", typeof(int), CultureInfo.InvariantCulture)];
     [HarmonyPatch(typeof(Player), nameof(Player.CheckCanRemovePiece))]
     static bool Prefix(Piece piece, ref bool __result) => !IsModdedPrefab(piece) || (__result = false);
 
@@ -72,14 +75,15 @@ static class PieceRemovalPatches
                     if (!pickable.m_picked && pickable.m_pickRaiseSkill != Skills.SkillType.None)
                     {
                         player.RaiseSkill(pickable.m_pickRaiseSkill, 1f);
-                        if (Random.value < (double)player.GetSkillFactor(pickable.m_pickRaiseSkill) * pickable.m_maxLevelBonusChance)
+                        if (UnityEngine.Random.value < (double)player.GetSkillFactor(pickable.m_pickRaiseSkill) * pickable.m_maxLevelBonusChance)
                         {
                             num = pickable.m_bonusYieldAmount;
-                            DamageText.instance.ShowText(DamageText.TextType.Bonus, pickable.transform.position + Vector3.up * pickable.m_spawnOffset, string.Format("+{0}", num), true);
+                            DamageText.instance.ShowText(DamageText.TextType.Bonus, pickable.transform.position + Vector3.up * pickable.m_spawnOffset, $"+{num.ToString()}", true);
                             pickable.m_bonusEffect.Create(pickable.transform.position, Quaternion.identity);
                         }
                     }
-                    pickable.m_nview.InvokeRPC("RPC_Pick", num);
+                    object[] pickArgs = num == 0 ? ZeroBonusArgs : [Convert.ChangeType(num.ToString(CultureInfo.InvariantCulture), typeof(int), CultureInfo.InvariantCulture)];
+                    pickable.m_nview.InvokeRPC("RPC_Pick", pickArgs);
                 }
 
                 ZNetScene.instance.Destroy(piece.gameObject);

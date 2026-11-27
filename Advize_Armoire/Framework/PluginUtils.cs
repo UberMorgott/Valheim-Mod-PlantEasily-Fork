@@ -8,7 +8,11 @@ static class PluginUtils
 {
     internal static AppearanceSlot FindMatchingSlot(ItemDrop.ItemData.SharedData sd)
     {
-        return ActiveOverrides.Values.FirstOrDefault(slot => slot.IsMatch(sd));
+        foreach (AppearanceSlot slot in ActiveOverrides.Values)
+            if (slot.IsMatch(sd))
+                return slot;
+
+        return null;
     }
 
     internal static AppearanceSlotType? GetSlotTypeForItemDrop(ItemDrop item)

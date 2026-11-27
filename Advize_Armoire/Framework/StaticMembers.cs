@@ -136,12 +136,27 @@ static class StaticMembers
     // This should probably be cached
     internal static Dictionary<AppearanceSlotType, Dictionary<ItemDrop, int>> GetLockedAppearances()
     {
-        return AllAppearances.ToDictionary(
-        kvp => kvp.Key,
-        kvp => UnlockedAppearances.TryGetValue(kvp.Key, out Dictionary<ItemDrop, int> unlocked)
-            ? kvp.Value.Where(pair => !unlocked.ContainsKey(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value)
-            : new Dictionary<ItemDrop, int>(kvp.Value)
-        );
+        Dictionary<AppearanceSlotType, Dictionary<ItemDrop, int>> locked = new(AllAppearances.Count);
+
+        foreach (KeyValuePair<AppearanceSlotType, Dictionary<ItemDrop, int>> kvp in AllAppearances)
+        {
+            if (UnlockedAppearances.TryGetValue(kvp.Key, out Dictionary<ItemDrop, int> unlocked))
+            {
+                Dictionary<ItemDrop, int> lockedItems = [];
+                foreach (KeyValuePair<ItemDrop, int> pair in kvp.Value)
+                {
+                    if (!unlocked.ContainsKey(pair.Key))
+                        lockedItems.Add(pair.Key, pair.Value);
+                }
+                locked.Add(kvp.Key, lockedItems);
+            }
+            else
+            {
+                locked.Add(kvp.Key, new Dictionary<ItemDrop, int>(kvp.Value));
+            }
+        }
+
+        return locked;
     }
 
     internal static AssetBundle LoadAssetBundle(string fileName)

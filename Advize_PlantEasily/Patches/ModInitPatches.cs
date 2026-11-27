@@ -20,7 +20,7 @@ static class ModInitPatches
         {
             List<GameObject> filteredPrefabs = __instance.m_prefabs.Where(IsValidCrop).ToList();
 
-            Dbgl($"({filteredPrefabs.Count}) vanilla crops detected");
+            Dbgl($"({filteredPrefabs.Count.ToString()}) vanilla crops detected");
             foreach (GameObject go in filteredPrefabs)
             {
                 ReplantDB replantDB = new(go);
@@ -38,12 +38,17 @@ static class ModInitPatches
 
         plantablePickables.ForEach(go => PickableRefs.Add(new(go.name)));
 
-        Dbgl($"({plantablePickables.Count}) plantable pickables detected: " + string.Join(", ", plantablePickables.Select(go => go.name)));
+        Dbgl($"({plantablePickables.Count.ToString()}) plantable pickables detected: " + string.Join(", ", plantablePickables.Select(go => go.name)));
 
         HashSet<GameObject> unfilteredSet = new(unfilteredPrefabs);
-        List<GameObject> moddedPrefabs = __instance.m_prefabs.Where(go => !unfilteredSet.Contains(go)).Where(IsValidCrop).ToList();
+        List<GameObject> moddedPrefabs = [];
+        foreach (GameObject go in __instance.m_prefabs)
+        {
+            if (!unfilteredSet.Contains(go) && IsValidCrop(go))
+                moddedPrefabs.Add(go);
+        }
 
-        Dbgl($"({moddedPrefabs.Count}) modded crops detected: " + string.Join(", ", moddedPrefabs.Select(go => go.name)));
+        Dbgl($"({moddedPrefabs.Count.ToString()}) modded crops detected: " + string.Join(", ", moddedPrefabs.Select(go => go.name)));
 
         foreach (GameObject go in moddedPrefabs)
             _ = new ReplantDB(go);

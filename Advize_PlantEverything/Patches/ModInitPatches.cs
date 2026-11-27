@@ -62,12 +62,12 @@ static class ModInitPatches
 
                 if (moddedCropRefs.Count > 0)
                 {
-                    Dbgl($"Added {moddedCropRefs.Count} modded crop references");
+                    Dbgl($"Added {moddedCropRefs.Count.ToString()} modded crop references");
                     ConfigEventHandlers.CropSettingChanged(null, null);
                 }
                 if (moddedSaplingRefs.Count > 0)
                 {
-                    Dbgl($"Added {moddedSaplingRefs.Count} modded sapling references");
+                    Dbgl($"Added {moddedSaplingRefs.Count.ToString()} modded sapling references");
                     ConfigEventHandlers.SaplingSettingChanged(null, null);
                 }
                 unfilteredPrefabs.Clear();

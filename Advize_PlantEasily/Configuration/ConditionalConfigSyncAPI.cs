@@ -198,7 +198,7 @@ namespace ConditionalConfigSyncAPI
                     {
                         _configSyncInstance,
                         entry,
-                        syncMode.ToString(),
+                        GetSyncModeName(syncMode),
                         serverControlledByDefault,
                     });
                 return true;
@@ -299,7 +299,7 @@ namespace ConditionalConfigSyncAPI
                         _currentVersion,
                         _minimumRequiredVersion,
                         _modRequired,
-                        _requirementMode.ToString(),
+                        GetRequirementModeName(_requirementMode),
                         _allowClientConfigUpdatesWhenUnlocked,
                     });
 
@@ -472,6 +472,27 @@ namespace ConditionalConfigSyncAPI
         {
             if (_logger != null)
                 _logger.LogWarning(message);
+        }
+
+        private static string GetSyncModeName(SyncMode syncMode)
+        {
+            return syncMode switch
+            {
+                SyncMode.AlwaysServerControlled => nameof(SyncMode.AlwaysServerControlled),
+                SyncMode.Conditional => nameof(SyncMode.Conditional),
+                SyncMode.AlwaysClientControlled => nameof(SyncMode.AlwaysClientControlled),
+                _ => ((int)syncMode).ToString(),
+            };
+        }
+
+        private static string GetRequirementModeName(RequirementMode requirementMode)
+        {
+            return requirementMode switch
+            {
+                RequirementMode.Fixed => nameof(RequirementMode.Fixed),
+                RequirementMode.Conditional => nameof(RequirementMode.Conditional),
+                _ => ((int)requirementMode).ToString(),
+            };
         }
 
         private static string GetInnermostMessage(Exception exception)

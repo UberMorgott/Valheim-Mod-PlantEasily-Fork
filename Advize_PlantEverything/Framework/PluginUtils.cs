@@ -42,7 +42,8 @@ static class PluginUtils
         if (HoldingCultivator) SheatheCultivator();
 
         PieceTable pieceTable = prefabRefs["Cultivator"].GetComponent<ItemDrop>().m_itemData.m_shared.m_buildPieces;
-        prefabs.ForEach(x => pieceTable.m_pieces.Remove(x.Prefab));
+        foreach (PrefabDB prefab in prefabs)
+            pieceTable.m_pieces.Remove(prefab.Prefab);
     }
 
     internal static void SheatheCultivator()
@@ -117,7 +118,7 @@ static class PluginUtils
     private static void SaveExtraResources()
     {
         string filePath = Path.Combine(CustomConfigPath, "ExtraResources.json");
-        Dbgl($"deserializedExtraResources.Count is {deserializedExtraResources.Count}");
+        Dbgl($"deserializedExtraResources.Count is {deserializedExtraResources.Count.ToString()}");
 
         string fullContent = "";
         //foreach (ExtraResource test in deserializedExtraResources)
@@ -147,14 +148,14 @@ static class PluginUtils
             {
                 if (value.IsNullOrWhiteSpace()) continue;
                 ExtraResource er = DeserializeExtraResource(value);
-                if (er.IsValid())
+                if (er != null && er.IsValid())
                 {
                     deserializedExtraResources.Add(er);
                     //Dbgl($"er1 {er.prefabName}, {er.resourceName}, {er.resourceCost}, {er.groundOnly}, {er.pieceName}, {er.pieceDescription}");
                 }
-                else
+                else if (er != null)
                 {
-                    if (er.prefabName.StartsWith("PE_Fake")) continue;
+                    if (er.prefabName != null && er.prefabName.StartsWith("PE_Fake")) continue;
                     Dbgl($"Invalid resource, {er.prefabName}, configured in {fileName}, skipping entry", true, LogLevel.Warning);
                 }
             }
@@ -164,7 +165,8 @@ static class PluginUtils
             Dbgl($"Assigning local value from deserializedExtraResources");
 
             List<string> resourcesToSync = [];
-            deserializedExtraResources.ForEach(er => resourcesToSync.Add(SerializeExtraResource(er)));
+            foreach (ExtraResource er in deserializedExtraResources)
+                resourcesToSync.Add(SerializeExtraResource(er));
             config.SyncedExtraResources.AssignLocalValue(resourcesToSync);
             return;
         }
@@ -229,7 +231,7 @@ static class PluginUtils
 
     internal static Heightmap.Biome GetBiomeMask(Heightmap.Biome[] biomes)
     {
-        Heightmap.Biome biomeMask = 0;
+        Heightmap.Biome biomeMask = Heightmap.Biome.None;
 
         foreach (Heightmap.Biome biome in biomes)
         {

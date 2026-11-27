@@ -86,7 +86,7 @@ sealed class AppearanceData
         //For each one, serialize slot data
         foreach (KeyValuePair<AppearanceSlotType, AppearanceSlot> appearanceSlot in ActiveOverrides)
         {
-            armoireData.Write(appearanceSlot.Key.ToString());
+            armoireData.Write(GetSlotTypeName(appearanceSlot.Key));
             armoireData.Write(appearanceSlot.Value.ItemName);
             armoireData.Write(appearanceSlot.Value.ItemVariant);
             if (appearanceSlot.Value.CanBeHidden)
@@ -97,4 +97,30 @@ sealed class AppearanceData
         Player.m_localPlayer.m_customData[dataKey] = armoireData.GetBase64();
         Dbgl("Saved player armoire data");
     }
+
+    private static string GetSlotTypeName(AppearanceSlotType slotType) => slotType switch
+    {
+        AppearanceSlotType.Helmet => nameof(AppearanceSlotType.Helmet),
+        AppearanceSlotType.Chest => nameof(AppearanceSlotType.Chest),
+        AppearanceSlotType.Legs => nameof(AppearanceSlotType.Legs),
+        AppearanceSlotType.Shoulder => nameof(AppearanceSlotType.Shoulder),
+        AppearanceSlotType.Utility => nameof(AppearanceSlotType.Utility),
+        AppearanceSlotType.Trinket => nameof(AppearanceSlotType.Trinket),
+        AppearanceSlotType.Bow => nameof(AppearanceSlotType.Bow),
+        AppearanceSlotType.Crossbow => nameof(AppearanceSlotType.Crossbow),
+        AppearanceSlotType.Shield => nameof(AppearanceSlotType.Shield),
+        AppearanceSlotType.OneHandedAxe => nameof(AppearanceSlotType.OneHandedAxe),
+        AppearanceSlotType.OneHandedClub => nameof(AppearanceSlotType.OneHandedClub),
+        AppearanceSlotType.OneHandedSword => nameof(AppearanceSlotType.OneHandedSword),
+        AppearanceSlotType.Knife => nameof(AppearanceSlotType.Knife),
+        AppearanceSlotType.Spear => nameof(AppearanceSlotType.Spear),
+        AppearanceSlotType.TwoHandedAxe => nameof(AppearanceSlotType.TwoHandedAxe),
+        AppearanceSlotType.TwoHandedClub => nameof(AppearanceSlotType.TwoHandedClub),
+        AppearanceSlotType.TwoHandedSword => nameof(AppearanceSlotType.TwoHandedSword),
+        AppearanceSlotType.Polearm => nameof(AppearanceSlotType.Polearm),
+        AppearanceSlotType.Pickaxe => nameof(AppearanceSlotType.Pickaxe),
+        AppearanceSlotType.Staff => nameof(AppearanceSlotType.Staff),
+        AppearanceSlotType.Fist => nameof(AppearanceSlotType.Fist),
+        _ => ((int)slotType).ToString()
+    };
 }

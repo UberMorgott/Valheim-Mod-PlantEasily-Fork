@@ -1,8 +1,6 @@
 ﻿namespace Advize_Armoire;
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -21,7 +19,7 @@ public static class UIResources
 
     public static Sprite GetItemIcon(string prefabName, int variant = 0)
     {
-        string cacheKey = $"{prefabName}.{variant}";
+        string cacheKey = $"{prefabName}.{variant.ToString()}";
         Sprite cachedSprite = SpriteCache.GetResource(cacheKey);
         if (cachedSprite) return cachedSprite;
 
@@ -47,7 +45,14 @@ public static class UIResources
     {
         if (!FontAssetCache.TryGetValue(fontName, out TMP_FontAsset fontAsset))
         {
-            fontAsset = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(x => x.name == fontName);
+            foreach (TMP_FontAsset candidate in Resources.FindObjectsOfTypeAll<TMP_FontAsset>())
+            {
+                if (candidate.name == fontName)
+                {
+                    fontAsset = candidate;
+                    break;
+                }
+            }
             FontAssetCache[fontName] = fontAsset;
         }
 
@@ -61,10 +66,16 @@ public sealed class ResourceCache<T> where T : UnityEngine.Object
 
     public T GetResource(string resourceName)
     {
-        Type typeOfT = typeof(T);
         if (!_cache.TryGetValue(resourceName, out T cachedResource))
         {
-            cachedResource = Resources.FindObjectsOfTypeAll<T>().FirstOrDefault(x => x.name == resourceName);
+            foreach (T candidate in Resources.FindObjectsOfTypeAll<T>())
+            {
+                if (candidate.name == resourceName)
+                {
+                    cachedResource = candidate;
+                    break;
+                }
+            }
             _cache[resourceName] = cachedResource;
         }
 

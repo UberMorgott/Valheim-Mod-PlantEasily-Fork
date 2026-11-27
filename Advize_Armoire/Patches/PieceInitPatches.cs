@@ -60,7 +60,8 @@ static class PieceInitPatches
 
         // Setup mesh materials
         Material[] materials = CreateArmoireMaterials();
-        Array.ForEach(["DoorLeft", "DoorRight", "Wardrobe"], child => armoirePiecePrefab.transform.Find(child).GetComponent<MeshRenderer>().sharedMaterials = materials);
+        foreach (string child in new[] { "DoorLeft", "DoorRight", "Wardrobe" })
+            armoirePiecePrefab.transform.Find(child).GetComponent<MeshRenderer>().sharedMaterials = materials;
 
         /* Now fix refs for equipment inside wardrobe */
         Transform equipment = armoirePiecePrefab.transform.Find("EquipmentAttachPoints");
@@ -74,7 +75,8 @@ static class PieceInitPatches
 
     private static Material[] CreateArmoireMaterials()
     {
-        AssetID.TryParse("f6de4704e075b4095ae641aed283b641", out AssetID id);
+        if (!AssetID.TryParse("f6de4704e075b4095ae641aed283b641", out AssetID id))
+            Dbgl("Failed to parse armoire shader AssetID", forceLog: true, level: BepInEx.Logging.LogLevel.Warning);
         SoftReference<Shader> shaderRef = new(id);
         shaderRef.Load();
 

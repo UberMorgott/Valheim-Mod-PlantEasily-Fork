@@ -154,7 +154,8 @@ static class KeyHintPatches
             string[] gamepadKeys = ["JoyDPadLeft", "JoyDPadUp", "JoyDPadRight", "JoyDPadDown"];
             string full = "";
 
-            System.Array.ForEach(gamepadKeys, gamepadKey => full += ZInput.instance.GetBoundKeyString(gamepadKey));
+            foreach (string gamepadKey in gamepadKeys)
+                full += ZInput.instance.GetBoundKeyString(gamepadKey);
 
             gamepadKeyText.text = $"Resize Grid {gamepadModifierKeyLocalized} + {full}";
             Localization.instance.Localize(gamepadKeyText.transform);

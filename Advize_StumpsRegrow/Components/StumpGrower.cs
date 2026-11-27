@@ -134,10 +134,10 @@ public sealed class StumpGrower : SlowUpdate, Hoverable
         else if (remainingRatio < 0.75) color = "orange";
 
         string timeRemaining = t.Hours <= 0 ? t.Minutes <= 0 ?
-            $"{t.Seconds:D2}s" : $"{t.Minutes:D2}m {t.Seconds:D2}s" : $"{t.Hours:D2}h {t.Minutes:D2}m {t.Seconds:D2}s";
+            $"{t.Seconds.ToString("D2")}s" : $"{t.Minutes.ToString("D2")}m {t.Seconds.ToString("D2")}s" : $"{t.Hours.ToString("D2")}h {t.Minutes.ToString("D2")}m {t.Seconds.ToString("D2")}s";
 
         string formattedString = config.GrowthAsPercentage ?
-            $"(<color={color}>{growthPercentage}%</color>)" : remainingMinutes < 0.0 ?
+            $"(<color={color}>{growthPercentage.ToString()}%</color>)" : remainingMinutes < 0.0 ?
             $"(<color={color}>About tree fitty</color>)" : $"(Ready in <color={color}>{timeRemaining}</color>)";
 
         return formattedString;
