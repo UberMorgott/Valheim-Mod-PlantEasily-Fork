@@ -46,37 +46,51 @@ internal sealed class PlacementController : MonoBehaviour
         _isPlanting = true;
         int count = 0;
 
-        bool showGhosts = config.ShowGhostsDuringPlacement;
-
-        // Hide either invalid ghosts or all ghosts if showGhosts is false
-        foreach (GameObject ghost in ExtraGhosts)
+        // A throw mid-batch runs this finally (iterator fault handler); a stuck _isPlanting blocked planting for the session.
+        try
         {
-            bool shouldDisable = !showGhosts || !ValidExtraGhosts.Contains(ghost);
-            if (shouldDisable)
-                DisableRenderers(ghost);
-        }
+            bool showGhosts = config.ShowGhostsDuringPlacement;
 
-        // Tint valid ghosts
-        if (showGhosts)
+            // Hide either invalid ghosts or all ghosts if showGhosts is false
+            foreach (GameObject ghost in ExtraGhosts)
+            {
+                bool shouldDisable = !showGhosts || !ValidExtraGhosts.Contains(ghost);
+                if (shouldDisable && ghost)
+                    DisableRenderers(ghost);
+            }
+
+            // Tint valid ghosts
+            if (showGhosts)
+            {
+                foreach (GameObject validGhost in ValidExtraGhosts)
+                    if (validGhost)
+                        MaterialMan.instance.SetValue(validGhost, ShaderProps._Color, Color.gray);
+            }
+
+            //Plant stuff in batches
+            foreach (GameObject go in ValidExtraGhosts)
+            {
+                // Ghosts and the player die with the scene (logout) while the batch spans frames.
+                if (!player)
+                    break;
+                if (!go)
+                    continue;
+
+                count++;
+                PlacePiece(player, go, piecePrefab);
+
+                if (count % config.BulkPlantingBatchSize == 0)
+                    yield return null;
+            }
+        }
+        finally
         {
-            foreach (GameObject validGhost in ValidExtraGhosts)
-                MaterialMan.instance.SetValue(validGhost, ShaderProps._Color, Color.gray);
+            ValidExtraGhosts.Clear();
+            _isPlanting = false;
+            if (player)
+                player.SetupPlacementGhost();
+            ReEnableRenderers();
         }
-
-        //Plant stuff in batches
-        foreach (GameObject go in ValidExtraGhosts)
-        {
-            count++;
-            PlacePiece(player, go, piecePrefab);
-
-            if (count % config.BulkPlantingBatchSize == 0)
-                yield return null;
-        }
-
-        ValidExtraGhosts.Clear();
-        _isPlanting = false;
-        player.SetupPlacementGhost();
-        ReEnableRenderers();
     }
 
     internal static void PlacePiece(Player player, GameObject go, GameObject piecePrefab)
@@ -121,7 +135,8 @@ internal sealed class PlacementController : MonoBehaviour
     private void ReEnableRenderers()
     {
         foreach (Renderer r in _disabledRenderers)
-            r.enabled = true;
+            if (r)
+                r.enabled = true;
         _disabledRenderers.Clear();
     }
 }

@@ -30,4 +30,25 @@ public class PressCostTests
         Assert.False(PressCost.CanPlant(Status.LackResources, noPlacementCost: false, preventInvalidPlanting: true));
         Assert.True(PressCost.CanPlant(Status.LackResources, noPlacementCost: true, preventInvalidPlanting: true));
     }
+
+    [Fact]
+    public void AffordableMatchesALinearScanWithFewChecks()
+    {
+        for (int max = 0; max <= 40; max++)
+            for (int stock = 0; stock <= max + 2; stock++)
+            {
+                int calls = 0;
+                int found = PressCost.Affordable(max, n => { calls++; return n <= stock; });
+                Assert.Equal(System.Math.Min(stock, max), found);
+                Assert.True(calls <= 7, $"max {max} stock {stock}: {calls} checks");
+            }
+    }
+
+    [Fact]
+    public void AffordableFullGridIsOneCheck()
+    {
+        int calls = 0;
+        Assert.Equal(500, PressCost.Affordable(500, _ => { calls++; return true; }));
+        Assert.Equal(1, calls);
+    }
 }

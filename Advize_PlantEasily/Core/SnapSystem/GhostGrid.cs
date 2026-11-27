@@ -193,6 +193,7 @@ internal static class GhostGrid
 
         Piece piece = Piece;
         int baseCost = piece.m_resources[0].m_amount;
+        (_player, _piece, _baseCost, _affordable) = (player, piece, baseCost, -1);
 
         UpdateGridVersion();
         if (press)
@@ -225,6 +226,32 @@ internal static class GhostGrid
     private static void UpdatePieceCost(Piece piece, int ghostIndex, int baseCost)
     {
         piece.m_resources[0].m_amount = baseCost * (ghostIndex + 1);
+    }
+
+    // Ghost index i needs the seeds of i + 1 pieces (UpdatePieceCost). The root checks its own cost every frame; the extras
+    // share one search per Update, so a press over the whole grid no longer runs a requirement check per ghost.
+    private static Player _player;
+    private static Piece _piece;
+    private static int _baseCost;
+    private static int _affordable = -1;
+    private static readonly System.Func<int, bool> s_canAffordPieces = CanAffordPieces;
+
+    private static bool CanAfford(Player player, Piece piece, int index)
+    {
+        if (index == 0)
+            return player.HaveRequirements(piece, Player.RequirementMode.CanBuild);
+        if (_affordable < 0)
+        {
+            _affordable = PressCost.Affordable(1 + MaxActiveGhosts, s_canAffordPieces);
+            UpdatePieceCost(piece, index, _baseCost);
+        }
+        return index + 1 <= _affordable;
+    }
+
+    private static bool CanAffordPieces(int pieces)
+    {
+        _piece.m_resources[0].m_amount = _baseCost * pieces;
+        return _player.HaveRequirements(_piece, Player.RequirementMode.CanBuild);
     }
 
     private static void UpdateVisibility()
@@ -331,7 +358,7 @@ internal static class GhostGrid
     private static void UpdateGhostStatus(Player player, Piece piece, GameObject ghost, int index)
     {
         Status baseStatus =
-            !player.m_noPlacementCost && !player.HaveRequirements(piece, Player.RequirementMode.CanBuild)
+            !player.m_noPlacementCost && !CanAfford(player, piece, index)
                 ? Status.LackResources
                 : Status.Healthy;
 

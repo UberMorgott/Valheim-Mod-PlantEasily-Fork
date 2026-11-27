@@ -20,4 +20,23 @@ internal static class PressCost
                 pieces++;
         return pieces;
     }
+
+    /// <summary>Largest piece count in [0, max] the player can pay for, given a cost check that holds up to some count
+    /// (paying for n pieces implies paying for fewer): the full count first, then a binary search, so a grid costs
+    /// O(log n) requirement checks (each may scan chests: V+ / Morgott.Patcher StationNetwork) instead of one per ghost.</summary>
+    internal static int Affordable(int max, System.Func<int, bool> canAfford)
+    {
+        if (max <= 0 || canAfford(max))
+            return System.Math.Max(0, max);
+        int lo = 0, hi = max - 1;
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo + 1) / 2;
+            if (canAfford(mid))
+                lo = mid;
+            else
+                hi = mid - 1;
+        }
+        return lo;
+    }
 }

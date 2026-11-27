@@ -48,6 +48,11 @@ static class InteractPatches
         }
     }
 
+    // A local pick runs RPC_Pick -> SetPicked inside this call (ZRoutedRpc.InvokeRoutedRPC handles self-owned ZDOs inline);
+    // ids of refused or remote-owner picks never reach SetPicked here, so drop them instead of keeping them forever.
+    [HarmonyPatch(typeof(Player), nameof(Player.Interact))]
+    static void Postfix() => _instanceIDS.Clear();
+
     [HarmonyPatch(typeof(Pickable), nameof(Pickable.SetPicked))]
     static void Prefix(Pickable __instance, bool picked)
     {
